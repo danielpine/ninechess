@@ -33,12 +33,15 @@
 
   <body>
     <div id="app">
-      {{ message }}
+      <h1>
+        {{ message }}
+      </h1>
+      <h2 v-if="name">Player : {{ name || "" }}</h2>
       <div id="chessBox" class="chess_box">
         <audio src="audio/click.wav" id="clickAudio" preload="auto"></audio>
         <audio src="audio/select.wav" id="selectAudio" preload="auto"></audio>
       </div>
-      <div class="menu_box" id="menuBox">
+      <div v-if="name" class="menu_box" id="menuBox">
         <div class="game_box">
           <div
             class="piece-box"
@@ -58,6 +61,10 @@
         </div>
         <a @click="show">开始匹配</a>
       </div>
+      <div class="menu_box name" v-else>
+        <input type="text" placeholder="请输入昵称" v-model="inputname" />
+        <a @click="setname">确定昵称</a>
+      </div>
     </div>
   </body>
 
@@ -68,7 +75,9 @@
     new Vue({
       el: "#app",
       data: {
-        message: "Hello world",
+        message: "欢迎来到九子棋对战平台！",
+        name: null,
+        inputname: "",
         base_o_x: base_o_x,
         base_o_y: base_o_y,
         step: step,
@@ -201,13 +210,35 @@
         show: function() {
           alert("run...");
         },
+        setname: function() {
+          var vm = this;
+          // 检查输入昵称是否合法
+          if (this.inputname !== "") {
+            this.name = this.inputname;
+            this.message = "设置昵称成功";
+            setTimeout(() => {
+              vm.message = "欢迎来到九子棋对战平台！";
+            }, 1000);
+          } else {
+            this.msg("昵称不能为空");
+          }
+        },
+        msg: function(str) {
+          var vm = this;
+          // 检查输入昵称是否合法
+          this.name = this.inputname;
+          this.message = str;
+          setTimeout(() => {
+            vm.message = "欢迎来到九子棋对战平台！";
+          }, 1000);
+        },
         pclick: function(i) {
           // 操作类型，全局状态
           // 判断有无棋子
           if (i.piece === 0) {
             i.piece = 2; // user_color
           } else {
-            alert("已有棋子");
+            this.msg("已有棋子!");
           }
         },
         setPieceBg: function(piece) {

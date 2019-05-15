@@ -3,6 +3,8 @@ body {
     line-height: 150%;
     text-align: center;
     background: url(../img/bg.jpg);
+    font: normal 18px/46px "微软雅黑";
+    color: #FF8A00;
 }
 
 .chess_box,
@@ -35,9 +37,25 @@ body {
     background: url(../img/btn_bg.png) center 0 no-repeat;
     display: block;
     margin: 10px auto;
-    font: normal 18px/46px"寰?杞???榛?";
+    font: normal 18px/46px "微软雅黑";
     color: #FF8A00;
     cursor: pointer;
+}
+.menu_box input {
+    width: 214px;
+    text-align: center;
+    height: 46px;
+    line-height: 46px;
+    background: url(../img/btn_bg.png) center 0 no-repeat;
+    display: block;
+    margin: 50px auto;
+    color: #FF8A00;
+    cursor: pointer;
+    border: none
+}
+
+.name{
+    margin-top: 300px;
 }
 
 .menu_box a:hover {
@@ -64,7 +82,7 @@ body {
 }
 
 .bn_box input {
-    font: normal 14px/46px"寰?杞???榛?";
+    font: normal 14px/46px "微软雅黑";
     margin: 3px 5px 0;
     padding: 2px;
     width: 100px
