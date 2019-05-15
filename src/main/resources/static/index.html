@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>中国象棋 in html5</title>
+    <meta name="viewport" content="width=device-width; initial-scale=1.0" />
+    <link href="css/chess.css" rel="stylesheet" type="text/css">
+    <!--[if lt IE 9]>
+<script> alert("对不起，您的浏览器不支持HTML5，请升级浏览器至IE9、firefox或者谷歌浏览器！")</script>
+< ![endif]-->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        {{ message }}
+        <div id="chessBox" class="chess_box">
+            <audio src="audio/click.wav" id="clickAudio" preload="auto"></audio>
+            <audio src="audio/select.wav" id="selectAudio" preload="auto"></audio>
+        </div>
+        <div class="menu_box" id="menuBox">
+            <div class="game_box">
+
+            </div>
+            <a @click=show>开始匹配</a>
+        </div>
+    </div>
+</body>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            message: 'Hello world'
+        },
+        methods: {
+            show: function() {
+                alert("run...")
+            }
+        }
+    })
+</script>
+
+</html>
