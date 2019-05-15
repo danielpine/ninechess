@@ -1,48 +1,226 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>中国象棋 in html5</title>
-    <meta name="viewport" content="width=device-width; initial-scale=1.0" />
-    <link href="css/chess.css" rel="stylesheet" type="text/css">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <link href="css/chess.css" rel="stylesheet" type="text/css" />
     <!--[if lt IE 9]>
 <script> alert("对不起，您的浏览器不支持HTML5，请升级浏览器至IE9、firefox或者谷歌浏览器！")</script>
 < ![endif]-->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <style>
-
+      .piece-box {
+        width: 113px;
+        height: 113px;
+        position: absolute; /*绝对定位*/
+        cursor: pointer;
+      }
+      .border {
+        width: 62px;
+        height: 62px;
+      }
+      .border:hover {
+        background: url(./file/image/current.png) no-repeat;
+        background-size: 100% 100%;
+      }
+      .piece {
+        width: 100%;
+        height: 100%;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div id="app">
-        {{ message }}
-        <div id="chessBox" class="chess_box">
-            <audio src="audio/click.wav" id="clickAudio" preload="auto"></audio>
-            <audio src="audio/select.wav" id="selectAudio" preload="auto"></audio>
-        </div>
-        <div class="menu_box" id="menuBox">
-            <div class="game_box">
-
+      {{ message }}
+      <div id="chessBox" class="chess_box">
+        <audio src="audio/click.wav" id="clickAudio" preload="auto"></audio>
+        <audio src="audio/select.wav" id="selectAudio" preload="auto"></audio>
+      </div>
+      <div class="menu_box" id="menuBox">
+        <div class="game_box">
+          <div
+            class="piece-box"
+            v-for="(i,k) in map"
+            :key="k"
+            :style="{'top':position[k].top ,'left':position[k].left}"
+          >
+            <!-- {{ k[0] }}{{ k[1] }}{{ i }} -->
+            <div class="border">
+              <div
+                class="piece"
+                @click="pclick(i)"
+                :style="{'background': setPieceBg(i.piece)}"
+              ></div>
             </div>
-            <a @click=show>开始匹配</a>
+          </div>
         </div>
+        <a @click="show">开始匹配</a>
+      </div>
     </div>
-</body>
+  </body>
 
-<script>
+  <script>
+    var base_o_x = 370;
+    var base_o_y = 370;
+    var step = 110.5;
     new Vue({
-        el: '#app',
-        data: {
-            message: 'Hello world'
+      el: "#app",
+      data: {
+        message: "Hello world",
+        base_o_x: base_o_x,
+        base_o_y: base_o_y,
+        step: step,
+        map: {
+          11: { x: 1, y: 1, piece: 1 },
+          12: { x: 1, y: 2, piece: 0 },
+          13: { x: 1, y: 3, piece: 0 },
+          14: { x: 1, y: 4, piece: 0 },
+          15: { x: 1, y: 5, piece: 0 },
+          16: { x: 1, y: 6, piece: 0 },
+          17: { x: 1, y: 7, piece: 0 },
+          18: { x: 1, y: 8, piece: 0 },
+          21: { x: 2, y: 1, piece: 0 },
+          22: { x: 2, y: 2, piece: 0 },
+          23: { x: 2, y: 3, piece: 0 },
+          24: { x: 2, y: 4, piece: 0 },
+          25: { x: 2, y: 5, piece: 0 },
+          26: { x: 2, y: 6, piece: 0 },
+          27: { x: 2, y: 7, piece: 0 },
+          28: { x: 2, y: 8, piece: 0 },
+          31: { x: 3, y: 1, piece: 0 },
+          32: { x: 3, y: 2, piece: 0 },
+          33: { x: 3, y: 3, piece: 0 },
+          34: { x: 3, y: 4, piece: 0 },
+          35: { x: 3, y: 5, piece: 0 },
+          36: { x: 3, y: 6, piece: 0 },
+          37: { x: 3, y: 7, piece: 0 },
+          38: { x: 3, y: 8, piece: 0 }
         },
-        methods: {
-            show: function() {
-                alert("run...")
-            }
+        position: {
+          11: {
+            top: base_o_x - 1 * step + "px",
+            left: base_o_y + 0 * step + "px"
+          },
+          12: {
+            top: base_o_x - 1 * step + "px",
+            left: base_o_y + 1 * step + "px"
+          },
+          13: {
+            top: base_o_x + 0 * step + "px",
+            left: base_o_y + 1 * step + "px"
+          },
+          14: {
+            top: base_o_x + 1 * step + "px",
+            left: base_o_y + 1 * step + "px"
+          },
+          15: {
+            top: base_o_x + 1 * step + "px",
+            left: base_o_y + 0 * step + "px"
+          },
+          16: {
+            top: base_o_x + 1 * step + "px",
+            left: base_o_y - 1 * step + "px"
+          },
+          17: {
+            top: base_o_x + 0 * step + "px",
+            left: base_o_y - 1 * step + "px"
+          },
+          18: {
+            top: base_o_x - 1 * step + "px",
+            left: base_o_y - 1 * step + "px"
+          },
+          21: {
+            top: base_o_x - 2 * step + "px",
+            left: base_o_y + 0 * step + "px"
+          },
+          22: {
+            top: base_o_x - 2 * step + "px",
+            left: base_o_y + 2 * step + "px"
+          },
+          23: {
+            top: base_o_x + 0 * step + "px",
+            left: base_o_y + 2 * step + "px"
+          },
+          24: {
+            top: base_o_x + 2 * step + "px",
+            left: base_o_y + 2 * step + "px"
+          },
+          25: {
+            top: base_o_x + 2 * step + "px",
+            left: base_o_y + 0 * step + "px"
+          },
+          26: {
+            top: base_o_x + 2 * step + "px",
+            left: base_o_y - 2 * step + "px"
+          },
+          27: {
+            top: base_o_x + 0 * step + "px",
+            left: base_o_y - 2 * step + "px"
+          },
+          28: {
+            top: base_o_x - 2 * step + "px",
+            left: base_o_y - 2 * step + "px"
+          },
+          31: {
+            top: base_o_x - 3 * step + "px",
+            left: base_o_y + 0 * step + "px"
+          },
+          32: {
+            top: base_o_x - 3 * step + "px",
+            left: base_o_y + 3 * step + "px"
+          },
+          33: {
+            top: base_o_x + 0 * step + "px",
+            left: base_o_y + 3 * step + "px"
+          },
+          34: {
+            top: base_o_x + 3 * step + "px",
+            left: base_o_y + 3 * step + "px"
+          },
+          35: {
+            top: base_o_x + 3 * step + "px",
+            left: base_o_y + 0 * step + "px"
+          },
+          36: {
+            top: base_o_x + 3 * step + "px",
+            left: base_o_y - 3 * step + "px"
+          },
+          37: {
+            top: base_o_x + 0 * step + "px",
+            left: base_o_y - 3 * step + "px"
+          },
+          38: {
+            top: base_o_x - 3 * step + "px",
+            left: base_o_y - 3 * step + "px"
+          }
         }
-    })
-</script>
-
+      },
+      methods: {
+        show: function() {
+          alert("run...");
+        },
+        pclick: function(i) {
+          // 操作类型，全局状态
+          // 判断有无棋子
+          if (i.piece === 0) {
+            i.piece = 2; // user_color
+          } else {
+            alert("已有棋子");
+          }
+        },
+        setPieceBg: function(piece) {
+          switch (piece) {
+            case 0: // 未落子
+              return "none";
+            case 1: // 黑棋
+              return "url(./file/image/black_piece.png) no-repeat";
+            case 2: // 白棋
+              return "url(./file/image/white_piece.png) no-repeat";
+          }
+        }
+      }
+    });
+  </script>
 </html>
