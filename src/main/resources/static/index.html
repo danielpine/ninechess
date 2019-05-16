@@ -85,6 +85,21 @@
                 <h2 v-if="user.name">Status : {{status}}</h2>
             </p>
             <p>
+                <div>
+                    <table style="width:100%">
+                        <tr>
+                            <td style="width:80px">
+                                <h2> My Piece : </h2>
+                            </td>
+                            <td style="width:80px">
+                                <!-- <div class="count" :style="{'background': setPieceBg(user.color)}" ></div> -->
+                                <div class="count" :style="{'background': setPieceBg(user.color==1?1:2)}"></div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </p>
+            <p>
                 <h2 v-if="user.name">{{terminfo}} </h2>
             </p>
         </div>
@@ -98,7 +113,7 @@
         <div v-if="user.name" class="menu_box" id="menuBox">
             <div class="game_box">
                 <div class="piece-box" v-for="(i,k) in map" :key="k" :style="{'top':position[k].top ,'left':position[k].left}">
-                    <!-- {{ k[0] }}{{ k[1] }}{{ i }} -->
+                    <!-- {{ k[0] }}{{ k[1] }}  -->
                     <div class="border">
                         <div class="piece" @click="pclick(i)" :style="{'background': setPieceBg(i.piece)}"></div>
                     </div>
@@ -111,7 +126,7 @@
                 <table style="width:100%">
                     <tr>
                         <td style="width:80px">
-                            <div class="count" :style="{'background-color': user.color==1?'black':'white'}"></div>
+                            <div class="count" :style="{'background': setPieceBg(user.color==1?1:2)}"></div>
                         </td>
                         <td style="width:80px"> {{mypieces}} </td>
                         <td>
@@ -120,11 +135,10 @@
                         </td>
                         <td style="width:80px">{{oppopieces}} </td>
                         <td style="width:80px">
-                            <div class="count" :style="{'background-color': user.color==1?'white':'black'}"></div>
+                            <div class="count" :style="{'background': setPieceBg(user.color==1?2:1)}"></div>
                         </td>
                     </tr>
                 </table>
-
             </div>
         </div>
         <div class="menu_box name" v-else>
@@ -190,6 +204,9 @@
             processGame: function(result) {
                 console.log(result)
             },
+            processGameError: function(result) {
+                vm.msg(result.message)
+            },
             initGame: function(result) {
                 console.log(result)
                 var user = {
@@ -205,32 +222,95 @@
                 vm.user.goal = result.goal
                 vm.user.connid = result.connid
                 vm.gameinfo = result.bout ? '您的回合' : '对手回合'
+                    // vm.intervalGameInfo(vm.gameinfo)
             },
             oppoGame: function(result) {
+                vm.map[result.xy].piece = result.color
+                vm.user.bout = result.bout
+                vm.user.goal = 1
+                vm.gameinfo = result.bout ? '您的回合' : '对手回合'
+                vm.intervalGameInfo(vm.gameinfo)
+                vm.terminfo = result.message
+                vm.intervalTerminfo(result.message)
+                vm.wsmsgs.push("系统：" + result.xy)
+                vm.oppopieces++
+            },
+            executeRemove: function(result) {
+                vm.map[result.xy].piece = 0
+                vm.user.bout = result.bout
+                if (result.color === vm.user) {
+                    // 被移除的下一步操作
+                    vm.user.goal = result.goal
+                        // vm.mypieces--
+                } else {
+                    // vm.oppopieces--
+                }
+                vm.gameinfo = result.bout ? '您的回合' : '对手回合'
+                vm.intervalGameInfo(vm.gameinfo)
+                vm.terminfo = result.message
+                vm.intervalTerminfo(result.message)
+                vm.wsmsgs.push(result.message)
+            },
+            executeRemoveFirstTime: function(result) {
+                vm.map[result.xy].piece = 0
+                if (result.color === vm.user) {
+                    // vm.mypieces--
+                } else {
+                    // vm.oppopieces--
+                }
+                vm.gameinfo = result.bout ? '您的回合' : '对手回合'
+                vm.intervalGameInfo(vm.gameinfo)
+                vm.terminfo = result.message
+                vm.intervalTerminfo(result.message)
+                vm.wsmsgs.push(result.message)
+            },
+            processRemove: function(result) {
+                vm.user.bout = true
+                vm.user.goal = 4
+                vm.gameinfo = result.bout ? '您的回合' : '对手回合'
+                vm.intervalGameInfo(vm.gameinfo)
+                vm.terminfo = result.message
+                vm.intervalTerminfo(vm.terminfo)
+                    // vm.wsmsgs.push("系统：" + result.xy)
+                    // vm.oppopieces++
+            },
+            intervalTerminfo: function(message) {
                 if (vm.timer) {
                     clearInterval(vm.inter)
                 }
                 if (vm.timer) {
                     clearTimeout(vm.timer)
                 }
-                vm.map[result.xy].piece = result.color
-                vm.user.bout = true
-                vm.user.goal = 1
-                vm.gameinfo = result.bout ? '您的回合' : '对手回合'
-                vm.terminfo = result.message
                 vm.inter = setInterval(() => {
                     if (vm.terminfo === '') {
-                        vm.terminfo = result.message
+                        vm.terminfo = message
                     } else {
                         vm.terminfo = ''
                     }
-                }, 200)
+                }, 150)
                 vm.timer = setTimeout(() => {
                     clearInterval(vm.inter)
-                    vm.terminfo = result.message
+                    vm.terminfo = message
                 }, 601)
-                vm.wsmsgs.push("系统：" + result.xy)
-                vm.oppopieces++
+            },
+            intervalGameInfo: function(message) {
+                if (vm.gameinfotimer) {
+                    clearInterval(vm.gameinfointer)
+                }
+                if (vm.gameinfotimer) {
+                    clearTimeout(vm.gameinfotimer)
+                }
+                vm.gameinfointer = setInterval(() => {
+                    if (vm.gameinfo === '') {
+                        vm.gameinfo = message
+                    } else {
+                        vm.gameinfo = ''
+                    }
+                }, 150)
+                vm.gameinfotimer = setTimeout(() => {
+                    clearInterval(vm.gameinfointer)
+                    vm.gameinfo = message
+                }, 601)
             },
             setname: function() {
                 // 检查输入昵称是否合法
@@ -268,6 +348,19 @@
                             this.mypieces++
                         } else {
                             this.msg("已有棋子或大于9个！");
+                        }
+                    } else if (this.user.goal === 4) {
+                        if (i.piece === 0 || i.piece === vm.user.color) {
+                            this.msg("请正确选择棋子！");
+                        } else {
+                            vm.sendMessage({
+                                    type: 113, // 系统消息
+                                    goal: 3, // 吃子
+                                    color: vm.user.color,
+                                    xy: i.x + "" + i.y
+                                })
+                                // 如果成功
+                                // vm.user.eatcount--
                         }
                     } else {
                         alert(this.user.goal)
@@ -326,18 +419,35 @@
                             case 112: // 对手操作信息
                                 vm.oppoGame(result)
                                 break
+                            case 113: // 对手操作信息
+                                vm.processRemove(result)
+                                break
                             case 222:
                                 vm.processGame(result)
+                                break
+                            case 333:
+                                vm.processGameError(result)
+                                break
+                            case 444:
+                                vm.executeRemove(result)
+                                break
+                            case 555:
+                                vm.executeRemoveFirstTime(result)
                                 break
                             default:
                                 vm.wsmsgs.push(result.message)
                                 break
                         }
+                    } else {
+                        vm.intervalTerminfo(result.message)
                     }
                 };
                 //连接关闭的回调方法
                 vm.websocket.onclose = function() {
-                    vm.wsmsgs.push("系统：与服务器连接断开！请重连！")
+                    vm.wsmsgs.push("系统：与服务器连接断开！即将刷新页面！")
+                    setTimeout(() => {
+                        window.location.reload()
+                    }, 1500)
                 };
                 //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
                 window.onbeforeunload = function() {
@@ -352,5 +462,3 @@
         }
     });
 </script>
-
-</html>
