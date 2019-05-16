@@ -90,10 +90,13 @@ body {
 }
 
 .layer_open {
-    width: 100%;
+    width: 98.5%;
     height: 90%;
-    background: lightblue;
+    color: lightblue;
+    background: sienna;
     background-size: 100% 100%;
     font-size: 30px;
-    font-weight: 600;
+    font-weight: 550;
+    text-align: left;
+    padding-left: 25px;
 }

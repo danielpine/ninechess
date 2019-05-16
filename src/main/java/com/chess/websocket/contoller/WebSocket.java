@@ -37,11 +37,11 @@ import javax.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.chess.websocket.domain.Result;
 import com.chess.websocket.domain.Room;
 import com.chess.websocket.domain.User;
-import net.sf.json.JSONObject;
+
 
 
 /**
@@ -141,7 +141,7 @@ public class WebSocket {
                               // 222 ：游戏操作信息
           result.setGoal(1);// 0 等待 1 落子 2 移动 3 吃子 4 飞行
           result.setBout(true);
-          result.setMessage("系统：已匹配到对手，您是黑棋，请您先落子！");
+          result.setMessage("系统：游戏开始，您是黑棋，请您先落子！");
           result.setColor(1);
           this.sendMessage(result.toString());
           // 对先落子的对象发送数据结束
@@ -177,7 +177,7 @@ public class WebSocket {
         Result result = new Result();
         result.setMessage("系统：你的对手已离开！");
         if (oppo.session.isOpen()) {
-          oppo.sendMessage(JSONObject.fromObject(result).toString());
+          oppo.sendMessage(result.toString());
         }
         // TODO 初始化房间信息
         index--;
@@ -195,8 +195,7 @@ public class WebSocket {
    */
   @OnMessage
   public void onMessage(String message) {
-    JSONObject json = JSONObject.fromObject(message);
-    Result result = (Result) JSONObject.toBean(json, Result.class);
+    Result result = JSONObject.parseObject(message).toJavaObject(Result.class);
     log.info("{}", result);
     try {
       if (oppo != null && oppo.session.isOpen()) {
@@ -212,6 +211,8 @@ public class WebSocket {
           for (String step : room.getSteps()) {
             log.info("step  :  {}", step);
           }
+          log.info("step  :  {}",
+              com.alibaba.fastjson.JSONObject.toJSONString(room.getMap(), true));
           this.sendMessage(result.toString());
           result.setType(112);
           result.setBout(true);
@@ -220,8 +221,15 @@ public class WebSocket {
           Integer pieceRecord = oppo.user.getPieceRecord();
           log.info("pieceRecord  :  " + pieceRecord);
           if (pieceRecord >= 9) {
+            Integer pieceCount = oppo.user.getPieceCount();
             // 判断飞行
-            result.setMessage("系统：对方已落子，正在等待您移动！");
+            if (pieceCount <= 3) {
+              result.setGoal(4);// 0 等待 1 落子 2 移动 3 吃子 4飞行
+              result.setMessage("系统：对方已落子，正在等待您飞行！");
+            } else {
+              result.setGoal(2);// 0 等待 1 落子 2 移动 3 吃子
+              result.setMessage("系统：对方已落子，正在等待您移动！");
+            }
           } else {
             result.setMessage("系统：对方已落子，正在等待您落子！");
           }
