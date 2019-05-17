@@ -119,7 +119,7 @@
         <div v-if="user.name" class="menu_box" id="menuBox">
             <div class="game_box">
                 <div class="piece-box" v-for="(i,k) in map" :key="k" :style="{'top':position[k].top ,'left':position[k].left}">
-                    <!-- {{ k[0] }}{{ k[1] }}  -->
+                    <!-- {{ k[0] }}{{ k[1] }} -->
                     <div class="border">
                         <div class="select-border" :style="{'background': setPieceSelect(k,target,select)}">
                             <div class="piece" @click="pclick(i)" :style="{'background': setPieceBg(i.piece)}"></div>
@@ -214,6 +214,14 @@
             processGame: function(result) {
                 console.log(result)
             },
+            gameOver: function(result) {
+                vm.user.goal = 5
+                vm.user.bout = false
+                vm.gameinfo = "GAME OVER"
+                vm.intervalGameInfo(vm.gameinfo)
+                vm.intervalTerminfo(result.message)
+                alert(result.message)
+            },
             processGameError: function(result) {
                 vm.msg(result.message)
             },
@@ -223,7 +231,11 @@
                 vm.select = ""
             },
             processMoveSuccess: function(result) {
-                vm.msg(result.message)
+                if (result.win) {
+                    console.log("GAME OVER")
+                } else {
+                    vm.msg(result.message)
+                }
                 if (vm.user.color == result.color) {
                     //自己
                     vm.map[vm.select].piece = 0
@@ -238,7 +250,11 @@
                 }
             },
             processMoveResult: function(result) {
-                vm.msg(result.message)
+                if (result.win) {
+                    console.log("GAME OVER")
+                } else {
+                    vm.msg(result.message)
+                }
                 if (vm.user.color == result.color) {
                     //自己
                     vm.map[vm.select].piece = 0
@@ -271,53 +287,73 @@
             },
             oppoGame: function(result) {
                 vm.map[result.xy].piece = result.color
-                vm.user.bout = result.bout
-                console.log(result.bout + "-" + result.goal)
-                vm.user.goal = result.goal
-                vm.gameinfo = result.bout ? '您的回合' : '对手回合'
-                vm.intervalGameInfo(vm.gameinfo)
-                vm.terminfo = result.message
-                vm.intervalTerminfo(result.message)
-                vm.wsmsgs.push("系统：" + result.xy)
-                vm.oppopieces++
+                if (result.win) {
+                    console.log("GAME OVER")
+                } else {
+                    vm.user.bout = result.bout
+                    console.log(result.bout + "-" + result.goal)
+                    vm.user.goal = result.goal
+                    vm.gameinfo = result.bout ? '您的回合' : '对手回合'
+                    vm.intervalGameInfo(vm.gameinfo)
+                    vm.terminfo = result.message
+                    vm.intervalTerminfo(result.message)
+                    vm.wsmsgs.push("系统：" + result.xy)
+                    vm.oppopieces++
+                }
             },
             oppoMove: function(result) {
-                vm.user.bout = result.bout
-                console.log(result.bout + "-" + result.goal)
-                vm.user.goal = result.goal
-                vm.gameinfo = result.bout ? '您的回合' : '对手回合'
-                vm.intervalGameInfo(vm.gameinfo)
-                vm.terminfo = result.message
-                vm.intervalTerminfo(result.message)
-                vm.wsmsgs.push("系统：" + result.xy)
+                if (result.win) {
+                    console.log("GAME OVER")
+                } else {
+                    vm.user.bout = result.bout
+                    console.log(result.bout + "-" + result.goal)
+                    vm.user.goal = result.goal
+                    vm.gameinfo = result.bout ? '您的回合' : '对手回合'
+                    vm.intervalGameInfo(vm.gameinfo)
+                    vm.terminfo = result.message
+                    vm.intervalTerminfo(result.message)
+                    vm.wsmsgs.push("系统：" + result.xy)
+                }
             },
             executeRemove: function(result) {
                 vm.map[result.xy].piece = 0
-                vm.user.bout = result.bout
-                vm.user.goal = result.goal
-                vm.gameinfo = result.bout ? '您的回合' : '对手回合'
-                vm.intervalGameInfo(vm.gameinfo)
-                vm.terminfo = result.message
-                vm.intervalTerminfo(result.message)
-                vm.wsmsgs.push(result.message)
+                if (result.win) {
+                    console.log("GAME OVER")
+                } else {
+                    vm.user.bout = result.bout
+                    vm.user.goal = result.goal
+                    vm.gameinfo = result.bout ? '您的回合' : '对手回合'
+                    vm.intervalGameInfo(vm.gameinfo)
+                    vm.terminfo = result.message
+                    vm.intervalTerminfo(result.message)
+                    vm.wsmsgs.push(result.message)
+                }
             },
             executeRemoveFirstTime: function(result) {
                 vm.map[result.xy].piece = 0
-                vm.gameinfo = result.bout ? '您的回合' : '对手回合'
-                vm.intervalGameInfo(vm.gameinfo)
-                vm.terminfo = result.message
-                vm.intervalTerminfo(result.message)
-                vm.wsmsgs.push(result.message)
+                if (result.win) {
+                    console.log("GAME OVER")
+                } else {
+                    vm.gameinfo = result.bout ? '您的回合' : '对手回合'
+                    vm.intervalGameInfo(vm.gameinfo)
+                    vm.terminfo = result.message
+                    vm.intervalTerminfo(result.message)
+                    vm.wsmsgs.push(result.message)
+                }
             },
             processRemove: function(result) {
-                vm.user.bout = true
-                vm.user.goal = 4
-                vm.gameinfo = result.bout ? '您的回合' : '对手回合'
-                vm.intervalGameInfo(vm.gameinfo)
-                vm.terminfo = result.message
-                vm.intervalTerminfo(vm.terminfo)
-                    // vm.wsmsgs.push("系统：" + result.xy)
-                    // vm.oppopieces++
+                if (result.win) {
+                    console.log("GAME OVER")
+                } else {
+                    vm.user.bout = true
+                    vm.user.goal = 4
+                    vm.gameinfo = result.bout ? '您的回合' : '对手回合'
+                    vm.intervalGameInfo(vm.gameinfo)
+                    vm.terminfo = result.message
+                    vm.intervalTerminfo(vm.terminfo)
+                        // vm.wsmsgs.push("系统：" + result.xy)
+                        // vm.oppopieces++
+                }
             },
             intervalTerminfo: function(message) {
                 if (vm.timer) {
@@ -427,6 +463,41 @@
                         } else {
                             this.msg("请正确选择！");
                         }
+                    } else if (this.user.goal === 3) { // 飞行
+                        if (vm.select !== "" && vm.target !== "") {
+                            this.msg("不可操作，请等待服务器返回结果");
+                        } else if (vm.select == "") {
+                            // 第一点选择
+                            if (i.piece === vm.user.color && this.mypieces >= 9) {
+                                this.msg("可以飞行！");
+                                vm.select = i.x + "" + i.y
+                            }
+                        } else if (i.piece === vm.user.color && this.mypieces >= 9 && vm.select == i.x + "" + i.y) {
+                            this.msg('取消选择')
+                            vm.select = ""
+                            vm.target = ""
+                            console.log(vm.select)
+                        } else if (i.piece === vm.user.color && this.mypieces >= 9 && vm.select !== i.x + "" + i.y) {
+                            this.msg('重新选择')
+                            vm.select = i.x + "" + i.y
+                            vm.target = ""
+                        } else if (i.piece === 0) {
+                            this.msg("第二点");
+                            vm.target = i.x + "" + i.y
+                                // 发信飞行
+                            vm.sendMessage({
+                                type: 301, // 系统消息
+                                goal: 3, // 飞行
+                                color: vm.user.color,
+                                xy: vm.select + "," + vm.target
+                            })
+
+                        } else {
+                            this.msg("请正确选择！");
+                        }
+
+
+
                     } else if (this.user.goal === 4) {
                         if (i.piece === 0 || i.piece === vm.user.color) {
                             this.msg("请正确选择棋子！");
@@ -440,6 +511,8 @@
                                 // 如果成功
                                 // vm.user.eatcount--
                         }
+                    } else if (this.user.goal === 5) {
+                        alert("GAME OVER")
                     } else {
                         alert(this.user.goal)
                     }
@@ -530,6 +603,9 @@
                                 break
                             case 555:
                                 vm.executeRemoveFirstTime(result)
+                                break
+                            case 888:
+                                vm.gameOver(result)
                                 break
                             default:
                                 vm.wsmsgs.push(result.message)
