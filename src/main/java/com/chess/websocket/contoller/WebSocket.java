@@ -269,6 +269,7 @@ public class WebSocket {
 					// 对手设置
 					result.setType(555);
 					result.setBout(false);
+					result.setGoal(0);// 0 等待 1 落子 2 移动 3 吃子 4飞行
 					result.setMessage("系统：移除我方【" + thisxy + "】 还需等待对方移除" + needRemovePieces + "颗棋子！");
 					oppo.sendMessage(result.toString());
 				} else {
@@ -343,6 +344,7 @@ public class WebSocket {
 			// 对手设置
 			result.setType(112);
 			result.setBout(false);
+			result.setGoal(0);// 0 等待 1 落子 2 移动 3 吃子 4飞行
 			result.setMessage("系统：对方成三，等待对方移除我方" + millCount + "颗棋子！");
 			oppo.sendMessage(result.toString());
 		} else {

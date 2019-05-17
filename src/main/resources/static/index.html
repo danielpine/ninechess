@@ -33,6 +33,13 @@
         }
         
         .border {
+            width: 63px;
+            height: 63px;
+        }
+        
+        .select-border {
+            background-size: 100% 100%;
+            /**background: url(./img/select.png) no-repeat;*/
             width: 62px;
             height: 62px;
         }
@@ -115,7 +122,9 @@
                 <div class="piece-box" v-for="(i,k) in map" :key="k" :style="{'top':position[k].top ,'left':position[k].left}">
                     <!-- {{ k[0] }}{{ k[1] }}  -->
                     <div class="border">
-                        <div class="piece" @click="pclick(i)" :style="{'background': setPieceBg(i.piece)}"></div>
+                        <div class="select-border">
+                            <div class="piece" @click="pclick(i)" :style="{'background': setPieceBg(i.piece)}"></div>
+                        </div>
                     </div>
                 </div>
                 <div class="piece-tips">
@@ -156,6 +165,8 @@
             status: 0,
             mypieces: 0,
             oppopieces: 0,
+            select: '',
+            target: '',
             statusmap: {
                 0: {
                     desc: '未连接'
@@ -227,7 +238,8 @@
             oppoGame: function(result) {
                 vm.map[result.xy].piece = result.color
                 vm.user.bout = result.bout
-                vm.user.goal = 1
+                console.log(result.bout + "-" + result.goal)
+                vm.user.goal = result.goal
                 vm.gameinfo = result.bout ? '您的回合' : '对手回合'
                 vm.intervalGameInfo(vm.gameinfo)
                 vm.terminfo = result.message
@@ -238,13 +250,7 @@
             executeRemove: function(result) {
                 vm.map[result.xy].piece = 0
                 vm.user.bout = result.bout
-                if (result.color === vm.user) {
-                    // 被移除的下一步操作
-                    vm.user.goal = result.goal
-                        // vm.mypieces--
-                } else {
-                    // vm.oppopieces--
-                }
+                vm.user.goal = result.goal
                 vm.gameinfo = result.bout ? '您的回合' : '对手回合'
                 vm.intervalGameInfo(vm.gameinfo)
                 vm.terminfo = result.message
@@ -253,11 +259,6 @@
             },
             executeRemoveFirstTime: function(result) {
                 vm.map[result.xy].piece = 0
-                if (result.color === vm.user) {
-                    // vm.mypieces--
-                } else {
-                    // vm.oppopieces--
-                }
                 vm.gameinfo = result.bout ? '您的回合' : '对手回合'
                 vm.intervalGameInfo(vm.gameinfo)
                 vm.terminfo = result.message
@@ -335,7 +336,7 @@
                     // 操作类型，全局状态
                     // 判断有无棋子
                 if (this.user.bout) {
-                    if (this.user.goal === 1) {
+                    if (this.user.goal === 1) { //落子
                         if (i.piece === 0 && this.mypieces < 9) {
                             i.piece = vm.user.color
                             this.user.bout = false
@@ -348,6 +349,12 @@
                             this.mypieces++
                         } else {
                             this.msg("已有棋子或大于9个！");
+                        }
+                    } else if (this.user.goal === 2) { // 移动
+                        if (i.piece === vm.user.color && this.mypieces >= 9) {
+                            this.msg("可以移动！");
+                        } else {
+                            this.msg("请正确选择！");
                         }
                     } else if (this.user.goal === 4) {
                         if (i.piece === 0 || i.piece === vm.user.color) {
