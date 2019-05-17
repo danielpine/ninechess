@@ -268,13 +268,13 @@ public class WebSocket {
           result.setType(555);
           result.setBout(true);
           result.setColor(oppo.user.getColor());
-          result.setGoal(3);// 0 等待 1 落子 2 移动 3 吃子 4飞行
+          result.setGoal(3);// 0 等待 1 落子 2 移动 3飞行4吃子
           result.setMessage("系统：移除【" + thisxy + "】 还需移除" + needRemovePieces + "颗棋子！");
           this.sendMessage(result.toString());
           // 对手设置
           result.setType(555);
           result.setBout(false);
-          result.setGoal(0);// 0 等待 1 落子 2 移动 3 吃子 4飞行
+          result.setGoal(0);// 0 等待 1 落子 2 移动 3飞行4吃子
           result.setMessage("系统：移除我方【" + thisxy + "】 还需等待对方移除" + needRemovePieces + "颗棋子！");
           oppo.sendMessage(result.toString());
         } else {
@@ -293,7 +293,7 @@ public class WebSocket {
             Integer pieceCount = oppo.user.getPieceCount();
             // 判断飞行
             if (pieceCount <= 3) {
-              result.setGoal(4);// 0 等待 1 落子 2 移动 3 吃子 4飞行
+              result.setGoal(3);// 0 等待 1 落子 2 移动 3飞行4吃子
               result.setMessage("系统：您的【" + thisxy + "】被移除,，正在等待您飞行！");
             } else {
               result.setGoal(2);// 0 等待 1 落子 2 移动 3 吃子
@@ -343,13 +343,13 @@ public class WebSocket {
       this.needRemovePieces = millCount;
       result.setType(113);
       result.setBout(true);
-      result.setGoal(3);// 0 等待 1 落子 2 移动 3 吃子 4飞行
+      result.setGoal(4);// 0 等待 1 落子 2 移动 3飞行4吃子
       result.setMessage("系统：恭喜成三，移除对方" + millCount + "颗棋子！");
       this.sendMessage(result.toString());
       // 对手设置
       result.setType(112);
       result.setBout(false);
-      result.setGoal(0);// 0 等待 1 落子 2 移动 3 吃子 4飞行
+      result.setGoal(0);// 0 等待 1 落子 2 移动 3飞行4吃子
       result.setMessage("系统：对方成三，等待对方移除我方" + millCount + "颗棋子！");
       oppo.sendMessage(result.toString());
     } else {
@@ -364,7 +364,7 @@ public class WebSocket {
         Integer pieceCount = oppo.user.getPieceCount();
         // 判断飞行
         if (pieceCount <= 3) {
-          result.setGoal(4);// 0 等待 1 落子 2 移动 3 吃子 4飞行
+          result.setGoal(3);// 0 等待 1 落子 2 移动 3飞行4吃子
           result.setMessage("系统：对方已落子，正在等待您飞行！");
         } else {
           result.setGoal(2);// 0 等待 1 落子 2 移动 3 吃子
@@ -424,13 +424,13 @@ public class WebSocket {
         this.needRemovePieces = millCount;
         result.setType(204);
         result.setBout(true);
-        result.setGoal(3);// 0 等待 1 落子 2 移动 3 吃子 4飞行
+        result.setGoal(4);// 0 等待 1 落子 2 移动 3飞行4吃子
         result.setMessage("系统：恭喜成三，移除对方" + millCount + "颗棋子！");
         this.sendMessage(result.toString());
         // 对手设置
         result.setType(204);
         result.setBout(false);
-        result.setGoal(0);// 0 等待 1 落子 2 移动 3 吃子 4飞行
+        result.setGoal(0);// 0 等待 1 落子 2 移动 3飞行4吃子
         result.setMessage("系统：对方成三，等待对方移除我方" + millCount + "颗棋子！");
         oppo.sendMessage(result.toString());
       } else {
@@ -444,9 +444,10 @@ public class WebSocket {
         Integer pieceRecord = oppo.user.getPieceRecord();
         log.info("pieceRecord  :  " + pieceRecord);
         Integer pieceCount = oppo.user.getPieceCount();
+        log.info("pieceRecord  :  " + pieceRecord);
         // 判断飞行
-        if (pieceCount <= 3) {
-          result.setGoal(4);// 0 等待 1 落子 2 移动 3 吃子 4飞行
+        if (pieceCount == 3) {
+          result.setGoal(3);// 0 等待 1 落子 2 移动 3飞行4吃子
           result.setMessage("系统：对方已移动，正在等待您飞行！");
         } else {
           result.setGoal(2);// 0 等待 1 落子 2 移动 3 吃子

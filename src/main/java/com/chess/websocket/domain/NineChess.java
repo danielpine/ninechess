@@ -108,6 +108,8 @@ public class NineChess {
           return isMill(arr, currentXy, color, map);
         }).collect(Collectors.toList());
     int mills = list.size();
+    // 当前点为场
+    // TODO 判断有无散点
     if (mills > 0) {
       String millstr = list.toString();
       Collection<Object> values = map.values();
