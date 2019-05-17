@@ -5,15 +5,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 /**
- * @author zwd
- * @date 2018/12/19 09:12
- * @Email stephen.zwd@gmail.com
+ * 
+ * @description ： WebSocketConfig
+ * @author :Daniel Pine
+ * @email :danielpine@sina.com
+ * @date :2019年5月17日-上午10:18:07
  */
 @Configuration
 public class WebSocketConfig {
 
-    @Bean
-    public ServerEndpointExporter serverEndpointExporter () {
-        return new ServerEndpointExporter();
-    }
+  @Bean
+  public ServerEndpointExporter serverEndpointExporter() {
+    return new ServerEndpointExporter();
+  }
 }
