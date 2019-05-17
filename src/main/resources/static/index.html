@@ -38,10 +38,9 @@
         }
         
         .select-border {
-            background-size: 100% 100%;
-            /**background: url(./img/select.png) no-repeat;*/
             width: 62px;
             height: 62px;
+            background-size: 100% 100%;
         }
         
         .border:hover {
@@ -122,7 +121,7 @@
                 <div class="piece-box" v-for="(i,k) in map" :key="k" :style="{'top':position[k].top ,'left':position[k].left}">
                     <!-- {{ k[0] }}{{ k[1] }}  -->
                     <div class="border">
-                        <div class="select-border">
+                        <div class="select-border" :style="{'background': setPieceSelect(k,target,select)}">
                             <div class="piece" @click="pclick(i)" :style="{'background': setPieceBg(i.piece)}"></div>
                         </div>
                     </div>
@@ -218,6 +217,41 @@
             processGameError: function(result) {
                 vm.msg(result.message)
             },
+            processMoveError: function(result) {
+                vm.msg(result.message)
+                vm.target = ""
+                vm.select = ""
+            },
+            processMoveSuccess: function(result) {
+                vm.msg(result.message)
+                if (vm.user.color == result.color) {
+                    //自己
+                    vm.map[vm.select].piece = 0
+                    vm.map[vm.target].piece = result.color
+                    vm.user.bout = false
+                    vm.select = ""
+                    vm.target = ""
+                } else {
+                    var arr = result.xy.split(',')
+                    vm.map[arr[0]].piece = 0
+                    vm.map[arr[1]].piece = result.color
+                }
+            },
+            processMoveResult: function(result) {
+                vm.msg(result.message)
+                if (vm.user.color == result.color) {
+                    //自己
+                    vm.map[vm.select].piece = 0
+                    vm.map[vm.target].piece = result.color
+                    vm.user.bout = false
+                    vm.select = ""
+                    vm.target = ""
+                } else {
+                    var arr = result.xy.split(',')
+                    vm.map[arr[0]].piece = 0
+                    vm.map[arr[1]].piece = result.color
+                }
+            },
             initGame: function(result) {
                 console.log(result)
                 var user = {
@@ -246,6 +280,16 @@
                 vm.intervalTerminfo(result.message)
                 vm.wsmsgs.push("系统：" + result.xy)
                 vm.oppopieces++
+            },
+            oppoMove: function(result) {
+                vm.user.bout = result.bout
+                console.log(result.bout + "-" + result.goal)
+                vm.user.goal = result.goal
+                vm.gameinfo = result.bout ? '您的回合' : '对手回合'
+                vm.intervalGameInfo(vm.gameinfo)
+                vm.terminfo = result.message
+                vm.intervalTerminfo(result.message)
+                vm.wsmsgs.push("系统：" + result.xy)
             },
             executeRemove: function(result) {
                 vm.map[result.xy].piece = 0
@@ -351,8 +395,35 @@
                             this.msg("已有棋子或大于9个！");
                         }
                     } else if (this.user.goal === 2) { // 移动
-                        if (i.piece === vm.user.color && this.mypieces >= 9) {
-                            this.msg("可以移动！");
+
+                        if (vm.select !== "" && vm.target !== "") {
+                            this.msg("不可操作，请等待服务器返回结果");
+                        } else if (vm.select == "") {
+                            // 第一点选择
+                            if (i.piece === vm.user.color && this.mypieces >= 9) {
+                                this.msg("可以移动！");
+                                vm.select = i.x + "" + i.y
+                            }
+                        } else if (i.piece === vm.user.color && this.mypieces >= 9 && vm.select == i.x + "" + i.y) {
+                            this.msg('取消选择')
+                            vm.select = ""
+                            vm.target = ""
+                            console.log(vm.select)
+                        } else if (i.piece === vm.user.color && this.mypieces >= 9 && vm.select !== i.x + "" + i.y) {
+                            this.msg('重新选择')
+                            vm.select = i.x + "" + i.y
+                            vm.target = ""
+                        } else if (i.piece === 0) {
+                            this.msg("第二点");
+                            vm.target = i.x + "" + i.y
+                                // 发信移动
+                            vm.sendMessage({
+                                type: 201, // 系统消息
+                                goal: 2, // 落子
+                                color: vm.user.color,
+                                xy: vm.select + "," + vm.target
+                            })
+
                         } else {
                             this.msg("请正确选择！");
                         }
@@ -385,6 +456,16 @@
                     case 2: // 白棋
                         return "url(./file/image/white_piece.png) no-repeat";
                 }
+            },
+            setPieceSelect: function(k, target, select) {
+
+                if (k == select) {
+                    return "url(./file/image/current.png) no-repeat";
+                }
+                if (k == target) {
+                    return "url(./file/image/current.png) no-repeat";
+                }
+                return "none";
             },
             //发送消息
             sendMessage: function(msg) {
@@ -431,6 +512,15 @@
                                 break
                             case 222:
                                 vm.processGame(result)
+                                break
+                            case 202: //移动错误
+                                vm.processMoveError(result)
+                                break
+                            case 203: //移动成功
+                                vm.processMoveSuccess(result)
+                                break
+                            case 204: //移动最终结果处理
+                                vm.oppoMove(result)
                                 break
                             case 333:
                                 vm.processGameError(result)
